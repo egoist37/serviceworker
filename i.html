@@ -88,7 +88,7 @@ function handleChannelMessage(data) {
 
             navigator.serviceWorker.register('sw.js').then(
                 function(serviceWorkerRegistration) {
-                    serviceWorkerRegistration.pushManager.subscribe().then(
+                    serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true}).then(
                         function(pushSubscription) {
                             console.log(pushSubscription.subscriptionId);
                             console.log(pushSubscription.endpoint);
