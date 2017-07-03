@@ -6,8 +6,6 @@ function addZero(i) {
     return i > 9 ? i : '0' + i;
 }
 
-resetUI();
-
 if (window.location.protocol === 'https:' &&
     'Notification' in window &&
     'serviceWorker' in navigator &&
