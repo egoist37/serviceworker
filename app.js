@@ -28,13 +28,7 @@ if (window.location.protocol === 'https:' &&
     // handle catch the notification on current page
     messaging.onMessage(function(payload) {
         console.log('Message received. ', payload);
-        info.show();
-        info_message
-            .text('')
-            .append('<strong>'+payload.notification.title+'</strong>')
-            .append('<em> '+payload.notification.body+'</em>')
-        ;
-
+        
         // register fake ServiceWorker for show notification on mobile devices
         navigator.serviceWorker.register('/serviceworker/messaging-sw.js');
         Notification.requestPermission(function(permission) {
