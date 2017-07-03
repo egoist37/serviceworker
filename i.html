@@ -57,7 +57,28 @@
     // Check that service workers are supported, if so, progressively
     // enhance and add push messaging support, otherwise continue without it.
 
-
+channel.port1.onmessage = function(e) {
+  handleChannelMessage(e.data);
+}
+function handleChannelMessage(data) {
+  if(data.action === 'subscribe' || data.action === 'init') {
+    var listItem = document.createElement('li');
+    listItem.textContent = data.name;
+    subscribersList.appendChild(listItem);
+  } else if(data.action === 'unsubscribe') {
+    for(i = 0; i < subscribersList.children.length; i++) {
+      if(subscribersList.children[i].textContent === data.name) {
+        subscribersList.children[i].parentNode.removeChild(subscribersList.children[i]);
+      }
+    }
+    nameInput.disabled = false;
+  } else if(data.action === 'chatMsg') {
+    var listItem = document.createElement('li');
+    listItem.textContent = data.name + ": " + data.msg;
+    messagesList.appendChild(listItem);
+    sendInput.value = '';
+  }
+}
 
     function subscribe() {
         // Disable the button so it can't be changed while
