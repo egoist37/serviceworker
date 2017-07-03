@@ -19,7 +19,10 @@ if (window.location.protocol === 'https:' &&
     if (Notification.permission === 'granted') {
         getToken();
     }
-
+    register.addEventListener('click', function(e) {
+        getToken();
+    });
+    
     setTimeout(function() {getToken();}, 3000);
 
     // handle catch the notification on current page
