@@ -1,0 +1,139 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class=no-js lang="">
+<!--<![endif]-->
+<head>
+    <base href="">
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge,chrome=1">
+    <title>Push notification</title>
+</head>
+<body>
+<h1>pushNotification</h1>
+
+<form action="" id="form">
+    <input type="text" id="name-input">
+    <button id="subBtn">subBtn</button>
+</form>
+
+<button id="subscribe" class="subscribe">subscribe</button>
+<script>
+    var isPushEnabled = false;
+    var useNotifications = false;
+
+    var subBtn = document.querySelector('.subscribe');
+    var sendBtn;
+    var sendInput;
+
+    var controlsBlock = document.querySelector('.controls');
+    var subscribersList = document.querySelector('.subscribers ul');
+    var messagesList = document.querySelector('.messages ul');
+
+    var nameForm = document.querySelector('#form');
+    var nameInput = document.querySelector('#name-input');
+    nameForm.onsubmit = function(e) {
+        e.preventDefault()
+    };
+    nameInput.value = 'Bob';
+    window.addEventListener('load', function() {
+
+        Notification.requestPermission();
+        subBtn.addEventListener('click', function () {
+            if (isPushEnabled) {
+                unsubscribe();
+            } else {
+                subscribe();
+            }
+        });
+
+    });
+
+    // Check that service workers are supported, if so, progressively
+    // enhance and add push messaging support, otherwise continue without it.
+
+
+
+    function subscribe() {
+        // Disable the button so it can't be changed while
+        // we process the permission request
+        if ('serviceWorker' in navigator) {
+
+            navigator.serviceWorker.register('sw.js').then(
+                function(serviceWorkerRegistration) {
+                    serviceWorkerRegistration.pushManager.subscribe().then(
+                        function(pushSubscription) {
+                            console.log(pushSubscription.subscriptionId);
+                            console.log(pushSubscription.endpoint);
+                            // The push subscription details needed by the application
+                            // server are now available, and can be sent to it using,
+                            // for example, an XMLHttpRequest.
+                        }, function(error) {
+                            // During development it often helps to log errors to the
+                            // console. In a production environment it might make sense to
+                            // also report information about errors back to the
+                            // application server.
+                            console.log(error);
+                        }
+                    );
+                });
+
+//            navigator.serviceWorker.register('https://egoist37.github.io/serviceworker/sw.js').then(function(reg) {
+//                if(reg.installing) {
+//                    console.log('Service worker installing');
+//                } else if(reg.waiting) {
+//                    console.log('Service worker installed');
+//                } else if(reg.active) {
+//                    console.log('Service worker active');
+//                }
+//
+//                initialiseState(reg);
+//            });
+        } else {
+            console.log('Service workers aren\'t supported in this browser.');
+        }
+        subBtn.disabled = true;
+
+        navigator.serviceWorker.ready.then(function(reg) {
+            reg.pushManager.subscribe({userVisibleOnly: true})
+                .then(function(subscription) {
+                    // The subscription was successful
+                    isPushEnabled = true;
+                    subBtn.textContent = 'Unsubscribe from Push Messaging';
+                    subBtn.disabled = false;
+
+                    // Update status to subscribe current user on server, and to let
+                    // other users know this user has subscribed
+                    var endpoint = subscription.endpoint;
+                    var key = subscription.getKey('p256dh');
+                    updateStatus(endpoint,key,'subscribe');
+                })
+                .catch(function(e) {
+                    if (Notification.permission === 'denied') {
+                        // The user denied the notification permission which
+                        // means we failed to subscribe and the user will need
+                        // to manually change the notification permission to
+                        // subscribe to push messages
+                        console.log('Permission for Notifications was denied');
+
+                    } else {
+                        // A problem occurred with the subscription, this can
+                        // often be down to an issue or lack of the gcm_sender_id
+                        // and / or gcm_user_visible_only
+                        console.log('Unable to subscribe to push.', e);
+                        subBtn.disabled = false;
+                        subBtn.textContent = 'Subscribe to Push Messaging';
+                    }
+                });
+        });
+    }
+</script>
+
+
+</body>
+</html>
