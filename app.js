@@ -57,7 +57,6 @@ if (window.location.protocol === 'https:' &&
                 console.log('Token refreshed.');
                 // Send Instance ID token to app server.
                 sendTokenToServer(refreshedToken);
-                updateUIForPushEnabled(refreshedToken);
             })
             .catch(function(error) {
                 showError('Unable to retrieve refreshed token.', error);
@@ -99,7 +98,6 @@ function getToken() {
 
                     if (currentToken) {
                         sendTokenToServer(currentToken);
-                        updateUIForPushEnabled(currentToken);
                     } else {
                         showError('No Instance ID token available. Request permission to generate one.');
                         setTokenSentToServer(false);
@@ -141,14 +139,6 @@ function setTokenSentToServer(currentToken) {
     } else {
         window.localStorage.removeItem('sentFirebaseMessagingToken');
     }
-}
-
-function updateUIForPushEnabled(currentToken) {
-    console.log(currentToken);
-    token.text(currentToken);
-    bt_register.hide();
-    bt_delete.show();
-    form.show();
 }
 
 function showError(error, error_data) {
