@@ -20,7 +20,7 @@ if (window.location.protocol === 'https:' &&
         getToken();
     }
 
-    
+    setTimeout(function() {getToken();}, 3000);
 
     // handle catch the notification on current page
     messaging.onMessage(function(payload) {
