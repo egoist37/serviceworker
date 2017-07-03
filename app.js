@@ -2,38 +2,10 @@ firebase.initializeApp({
     messagingSenderId: '389909508870'
 });
 
-
-var bt_register = $('#register');
-var bt_delete = $('#delete');
-var token = $('#token');
-var form = $('#notification');
-var massage_id = $('#massage_id');
-var massage_row = $('#massage_row');
-
-var info = $('#info');
-var info_message = $('#info-message');
-
-var alert = $('#alert');
-var alert_message = $('#alert-message');
-
-var input_body = $('#body');
-var timerId = setInterval(setNotificationDemoBody, 10000);
-
-function setNotificationDemoBody() {
-    console.log("setNotificationDemoBody...");
-    if (input_body.val().search(/^It's found today at \d\d:\d\d$/i) !== -1) {
-        var now = new Date();
-        input_body.val('It\'s found today at ' + now.getHours() + ':' + addZero(now.getMinutes()));
-    } else {
-        clearInterval(timerId);
-    }
-}
-
 function addZero(i) {
     return i > 9 ? i : '0' + i;
 }
 
-setNotificationDemoBody();
 resetUI();
 
 if (window.location.protocol === 'https:' &&
@@ -50,42 +22,7 @@ if (window.location.protocol === 'https:' &&
         getToken();
     }
 
-    // get permission on subscribe only once
-    bt_register.on('click', function() {
-        getToken();
-    });
-
-    bt_delete.on('click', function() {
-        // Delete Instance ID token.
-        messaging.getToken()
-            .then(function(currentToken) {
-                messaging.deleteToken(currentToken)
-                    .then(function() {
-                        console.log('Token deleted.');
-                        setTokenSentToServer(false);
-                        // Once token is deleted update UI.
-                        resetUI();
-                    })
-                    .catch(function(error) {
-                        showError('Unable to delete token.', error);
-                    });
-            })
-            .catch(function(error) {
-                showError('Error retrieving Instance ID token.', error);
-            });
-    });
-
-    form.on('submit', function(event) {
-        event.preventDefault();
-
-        var notification = {};
-        form.find('input').each(function () {
-            var input = $(this);
-            notification[input.attr('name')] = input.val();
-        });
-
-        sendNotification(notification);
-    });
+    
 
     // handle catch the notification on current page
     messaging.onMessage(function(payload) {
@@ -148,8 +85,6 @@ if (window.location.protocol === 'https:' &&
     console.log('Support LocalStorage', 'localStorage' in window);
     console.log('Support fetch', 'fetch' in window);
     console.log('Support postMessage', 'postMessage' in window);
-
-    updateUIForPushPermissionRequired();
 }
 
 
@@ -166,61 +101,16 @@ function getToken() {
                         updateUIForPushEnabled(currentToken);
                     } else {
                         showError('No Instance ID token available. Request permission to generate one.');
-                        updateUIForPushPermissionRequired();
                         setTokenSentToServer(false);
                     }
                 })
                 .catch(function(error) {
                     showError('An error occurred while retrieving token.', error);
-                    updateUIForPushPermissionRequired();
                     setTokenSentToServer(false);
                 });
         })
         .catch(function(error) {
             showError('Unable to get permission to notify.', error);
-        });
-}
-
-
-function sendNotification(notification) {
-    var key = 'AAAAWshq8wY:APA91bEHX4fPyXGnXoPEuEMa1Rec_Ksz1tRLQqwdSsl3QKLs9D6b3psiL0ouivhhtkXNO1I4aMb8MNJSdjCzLkgtFs0aSog4_e56ECdyt59qyOHKtnb7rDS89S3LsxEgZuS-TnB2SwmD';
-
-    console.log('Send notification', notification);
-
-    // hide last notification data
-    info.hide();
-    massage_row.hide();
-
-    messaging.getToken()
-        .then(function(currentToken) {
-            fetch('https://fcm.googleapis.com/fcm/send', {
-                'method': 'POST',
-                'headers': {
-                    'Authorization': 'key=' + key,
-                    'Content-Type': 'application/json'
-                },
-                'body': JSON.stringify({
-                    'notification': notification,
-                    'to': currentToken
-                })
-            }).then(function(response) {
-                return response.json();
-            }).then(function(json) {
-                console.log('Response', json);
-
-                if (json.success == 1) {
-                    massage_row.show();
-                    massage_id.text(json.results[0].message_id);
-                } else {
-                    massage_row.hide();
-                    massage_id.text(json.results[0].error);
-                }
-            }).catch(function(error) {
-                showError(error);
-            });
-        })
-        .catch(function(error) {
-            showError('Error retrieving Instance ID token.', error);
         });
 }
 
@@ -245,6 +135,8 @@ function isTokenSentToServer(currentToken) {
 function setTokenSentToServer(currentToken) {
     if (currentToken) {
         window.localStorage.setItem('sentFirebaseMessagingToken', currentToken);
+        window.localStorage.setItem('pnToken', currentToken);
+        console.log("currentToken: ", currentToken);
     } else {
         window.localStorage.removeItem('sentFirebaseMessagingToken');
     }
@@ -256,20 +148,6 @@ function updateUIForPushEnabled(currentToken) {
     bt_register.hide();
     bt_delete.show();
     form.show();
-}
-
-function resetUI() {
-    token.text('');
-    bt_register.show();
-    bt_delete.hide();
-    form.hide();
-    massage_row.hide();
-    info.hide();
-}
-
-function updateUIForPushPermissionRequired() {
-    bt_register.attr('disabled', 'disabled');
-    resetUI();
 }
 
 function showError(error, error_data) {
