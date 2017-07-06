@@ -1,3 +1,4 @@
+
 var socket = new WebSocket("ws://localhost:3031");
 socket.onopen = function () {
     console.log("Соединение установлено.");
