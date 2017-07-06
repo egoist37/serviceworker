@@ -4,9 +4,8 @@ socket.onopen = function () {
 };
 socket.onmessage = function (event) {
     console.log("Получены данные " + event.data);
+    alert("Получены данные " + event.data);
     new Notification('твою ж мать, работый!', {
-        body: 'Тестирование WEBPUSH Notifications',
-        icon: 'icon.jpg',
-        dir: 'auto'
+        body: 'Тестирование WEBPUSH Notifications'
     });
 };
