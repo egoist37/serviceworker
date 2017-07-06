@@ -13,7 +13,9 @@
                     navigator.serviceWorker.register('service-worker.js').then(function (registration) {
                         // Регистрация успешна
                         console.log('ServiceWorker registration successful with scope: ', registration);
-                        registration.showNotification(123);
+                        console.log("registration.showNotification(123) ", registration.showNotification(123));
+                        console.log("registration.PushManager.subscribe() ", registration.PushManager.subscribe());
+                        console.log("PushManager.subscribe() ", PushManager.subscribe());
                     }).catch(function (err) {
                         // Регистрация не успешна
                         console.log('ServiceWorker registration failed: ', err);
