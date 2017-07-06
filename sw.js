@@ -7,7 +7,7 @@ self.addEventListener("connect", function(e) {
     connections ++;
     port.addEventListener("message", function(e) {
         if (e.data === "start") {
-            var ws = new WebSocket("ws://localhost:3031");
+            var ws = new WebSocket("http://localhost:3031");
             port.postMessage("started connection: " + connections);
         }
     }, false);
