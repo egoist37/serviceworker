@@ -1,3 +1,10 @@
+var CACHE_NAME = 'my-site-cache-v1';
+var urlsToCache = [
+  '/',
+  '/main.css',
+  '/ww.js'
+];
+
 self.addEventListener('install', function(event) {
     // установка
     event.waitUntil(
