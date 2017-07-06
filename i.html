@@ -3,6 +3,23 @@
 <body>
 <h1>WebWorkers</h1>
 <script>
+    function Performer(scriptSource) {
+	var worker = new Worker(scriptSource), callbacks = {}, nextRequestId = 0;	
+	this.perform = function(functionName, params, callback) {
+		callbacks["request_" + (++nextRequestId)] = callback;
+		worker.postMessage(
+		 {functionName: functionName, params: params, requestId: nextRequestId}
+		);
+	}	
+	worker.onmessage = function(msg) {
+		callbacks["request_" + msg.data.requestId](msg.data.result);
+		delete callbacks["request_" + msg.data.requestId];
+	}
+}
+    var performer = new Performer("ww.js");
+performer.perform("firstFunction", {some: "some"}, function(result){console.log("result1="+result);});	
+performer.perform("secondFunction", {some: "some"}, function(result){console.log("result2="+result);});
+    
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
             Notification.requestPermission(function (permission) {
