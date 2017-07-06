@@ -1,7 +1,7 @@
 Notification.requestPermission(function (permission) {
 // Если права успешно получены, отправляем уведомление
 if (permission === "granted") {
- var socket = new WebSocket("ws://localhost:3031");
+ var socket = new WebSocket("http://localhost:3031");
 socket.onopen = function() {
   console.log("Соединение установлено.");
 };
