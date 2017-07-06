@@ -1,3 +1,20 @@
+// Code goes here
+
+var connections = 0;
+
+self.addEventListener("connect", function(e) {
+    var port = e.ports[0];
+    connections ++;
+    port.addEventListener("message", function(e) {
+        if (e.data === "start") {
+            var ws = new WebSocket("ws://localhost:3031");
+            port.postMessage("started connection: " + connections);
+        }
+    }, false);
+    port.start();
+}, false);
+/////////////////////////////////////////////////////////////
+
 self.addEventListener('push', function(event) {
   var obj = event.data.json();
 
